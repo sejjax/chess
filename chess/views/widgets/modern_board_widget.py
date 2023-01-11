@@ -10,7 +10,7 @@ from ...lib.styled_string import addstr, bold, underline
 
 class BoardWidget(npyscreen.widget.Widget):
 
-    def __init__(self, screen, board: Board, relx=0, rely=0, name=None, value=None, width=False, height=False,
+    def __init__(self, screen, board: Board = None, relx=0, rely=0, name=None, value=None, width=False, height=False,
                  max_height=False, max_width=False, editable=True, hidden=False, color='DEFAULT', use_max_space=False,
                  check_value_change=True, check_cursor_move=True, value_changed_callback=None, **keywords):
         super().__init__(screen, relx, rely, name, value, width, height, max_height, max_width, editable, hidden, color,

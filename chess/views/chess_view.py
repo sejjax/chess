@@ -1,6 +1,7 @@
+import npyscreen
+
 from .widgets.board_widget import BoardWidget
 from ..lib.singleton import singleton
-from ..models.chess.board import Board
 from .._types import AbstractView, AbstractController
 from abc import ABC, abstractmethod
 from ..controllers.chess_controller import AbstractChessController
@@ -15,28 +16,31 @@ class AbstractChessView(AbstractView, ABC):
         pass
 
 
-class BoardForm(npyscreen.Form):
+class BoardForm(npyscreen.ActionFormMinimal):
     board: any
 
     def create(self):
-        super(BoardForm, self).create()
+        self.add_widget(BoardWidget, name="Cool Board Widget")
+
+    def on_ok(self):
+        navigate_to(self, CHOOSE_GAME_STYLE)
 
 
-
-class ChooseGameStyleForm(npyscreen.Form):
+class ChooseGameStyleForm(npyscreen.ActionFormMinimal):
     local_game: any
     net_game: any
 
     def create(self):
+        super(ChooseGameStyleForm, self).create()
         # This line is not strictly necessary: the API promises that the create method does nothing by default.
         # I've omitted it from later example code.
-        self.board = Board.build()
-        self.add_widget(BoardWidget, name="Cool Board Widget", board=self.board)
 
         self.local_game = navigate_to_button(self, 'Local Game', LOCAL_GAME_FORM)
         self.net_game = navigate_to_button(self, 'Network Game', MAIN_FORM)
+        self.back = navigate_to_button(self, 'Back', MAIN_FORM)
 
-    def on_cancel(self):
+    def on_ok(self):
+        # print('FUck')
         navigate_to(self, MAIN_FORM)
 
 
@@ -63,7 +67,7 @@ class _ChessView(npyscreen.NPSAppManaged):
     def onStart(self):
         self.addForm(MAIN_FORM, MainForm, name="The Chess", color="IMPORTANT")
         self.addForm(CHOOSE_GAME_STYLE, ChooseGameStyleForm, name="Choose Game Style", color="WARNING")
-        self.addForm(LOCAL_GAME_FORM, BoardForm, name="Chess Game (Board Form)", color="WARNING")
+        self.addForm(LOCAL_GAME_FORM, BoardForm, name="Local Chess Game", color="WARNING")
 
 
 @singleton
