@@ -3,7 +3,7 @@ from .game import Game, GamePlayer, WINNER_GAME_END_MAP, GameEnd
 from ..figure import FigureType, FigureColor
 from ..game_state import GameState
 
-
+PLAYERS_COUNT = 2
 class LocalGame(Game):
     def __init__(self, game_state: GameState):
         super().__init__(game_state, LocalGamePlayer)
@@ -20,17 +20,17 @@ class LocalGame(Game):
         return king_cells
 
     def change_current_step_player(self):
-        next_player_index = (self.player.index(self.current_step_player) + 1) % 2
+        next_player_index = (self.players.index(self.game_state.current_step_player) + 1) % PLAYERS_COUNT
         next_player = self.players[next_player_index]
-        self.current_step_player = next_player
+        self.game_state.current_step_player = next_player
 
     def change_current_player(self):
-        PLAYERS_COUNT = 2
+
         current_player = self.get_current_player()
         current_step_player_index = self.players.index(current_player)
         next_player_index = (current_step_player_index + 1) % PLAYERS_COUNT
-        self.current_step_player = self.players[next_player_index]
-        return self.current_step_player
+        self.game_state.current_step_player = self.players[next_player_index].color
+        return self.game_state.current_step_player
 
     def end_game(self, winner_color: FigureColor | None):
         self.game_state.game_end = WINNER_GAME_END_MAP[winner_color]
@@ -54,10 +54,14 @@ class LocalGamePlayer(GamePlayer):
 
     def do_step(self, from_pos, to_pos):
         from_cell = self._get_board_cell(from_pos)
+        moved_figure = from_cell.content
+        if moved_figure is None or moved_figure.color != self.color:
+            return False
         to_cell = self._get_board_cell(to_pos)
         available_cells = self.game_engine.get_figure_available_cells(from_cell)
         search = list(filter(lambda _cell: to_pos == _cell, available_cells))
         if len(search) == 0:
             return False
         self.game_engine.board.move_figure(tuple(from_pos), tuple(to_pos))
+        self.game_engine.change_current_player()
         return True

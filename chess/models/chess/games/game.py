@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, TypeVar
 
 from ..board import Board, Cell
 from ..constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
@@ -159,10 +159,7 @@ def throw_ray_cross_diagonal(board: Board, pos_from: vec) -> list[Cell]:
     return cells
 
 
-def knights_awailable_cells(board: Board, pos_from: vec) -> list[Cell]:
-    """Generate list of step cells for knight figures"""
-    cells = []
-    AVAILABLE_RELATIVE_CELLS = [
+AVAILABLE_RELATIVE_CELLS = [
         vec(-2, 1),
         vec(-1, 2),
         vec(1, 2),
@@ -172,6 +169,9 @@ def knights_awailable_cells(board: Board, pos_from: vec) -> list[Cell]:
         vec(-2, -1),
         vec(-1, -2),
     ]
+def knights_awailable_cells(board: Board, pos_from: vec) -> list[Cell]:
+    """Generate list of step cells for knight figures"""
+    cells = []
     for rel_pos in AVAILABLE_RELATIVE_CELLS:
         absolute_pos = rel_pos + pos_from
         cell = board.get_cell(absolute_pos)
