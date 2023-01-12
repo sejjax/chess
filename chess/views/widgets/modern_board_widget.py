@@ -7,26 +7,23 @@ from ...controllers.chess_controller import ChessController
 from ...lib.vec import vec
 from ...lib.styled_string import addstr, bold, underline
 
-CELL_SIZE = vec(3, 5)
+CELL_SIZE = vec(5, 3)
+
 
 class BoardWidget(npyscreen.widget.Widget):
+    board: MainBoard
+    board_renderer: BoardRenderer
+    chess_controller: ChessController
 
-    def __init__(self, screen, board: Board = None, relx=0, rely=0, name=None, value=None, width=False, height=False,
+    def __init__(self, screen, relx=0, rely=0, name=None, value=None, width=False, height=False,
                  max_height=False, max_width=False, editable=True, hidden=False, color='DEFAULT', use_max_space=False,
                  check_value_change=True, check_cursor_move=True, value_changed_callback=None, **keywords):
         super().__init__(screen, relx, rely, name, value, width, height, max_height, max_width, editable, hidden, color,
                          use_max_space, check_value_change, check_cursor_move, value_changed_callback, **keywords)
 
-        self.pos = CELL_SIZE
+        self.pos = vec(2, 2)
 
-        self.chess_controller = ChessController()
-        self.chess_controller.create_game()
-
-        _board = self.chess_controller.get_board()
-        self.board = MainBoard(vec(5, 3), _board)
-
-        self.board_renderer = BoardRenderer(self.pos, self.board)
-        self._set_up_handlers()
+        self.reset()
 
     def _set_up_handlers(self):
         top, bottom, left, right = self.board.get_movement_handlers()
@@ -38,6 +35,13 @@ class BoardWidget(npyscreen.widget.Widget):
             ord('d'): self.move_update(right),
             ord('k'): self.move_update(select_cell_handler)
         })
+
+    def reset(self):
+        self.chess_controller = ChessController()
+        self.board = MainBoard(CELL_SIZE)
+        self.board_renderer = BoardRenderer(self.pos, self.board)
+        self._set_up_handlers()
+
 
     def move_update(self, callback):
         def wrapper(_):
@@ -53,7 +57,6 @@ class BoardWidget(npyscreen.widget.Widget):
         if clear:
             self.clear()
         screen = get_pad(self)
-
         self.board_renderer.display(screen)
 
     def make_attributes_list(self, unicode_string, attribute):

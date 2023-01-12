@@ -29,7 +29,7 @@ class Board:
             self.board = matrix
         else:
             # Generating Matrix 8x8
-            self.board = [[Cell() for _ in range(BOARD_SIDE_SIZE)] for _ in range(BOARD_SIDE_SIZE)]
+            self.board = self.create_init_state()
 
         self.white_figures = []
         self.black_figures = []
@@ -72,6 +72,10 @@ class Board:
 
         return board
 
+    @staticmethod
+    def create_init_state():
+        return [[Cell() for _ in range(BOARD_SIDE_SIZE)] for _ in range(BOARD_SIDE_SIZE)]
+
     def get_figures(self):
         return self.white_figures, self.black_figures
 
@@ -94,6 +98,9 @@ class Board:
         figure_from = cell_from.content
         cell_to.content = figure_from
         cell_from.clear()
+
+    def reset(self):
+        self.board = self.create_init_state()
 
     def set_cell_content(self, pos_x, pos_y, content: Figure | None):
         self.board[pos_y][pos_x].content = content

@@ -1,10 +1,9 @@
 import npyscreen
 
-from .widgets.board_widget import BoardWidget
 from ..lib.singleton import singleton
 from .._types import AbstractView, AbstractController
 from abc import ABC, abstractmethod
-from ..controllers.chess_controller import AbstractChessController
+from ..controllers.chess_controller import AbstractChessController, ChessController
 from .utils import *
 from .constants import *
 from .widgets.modern_board_widget import BoardWidget
@@ -16,11 +15,31 @@ class AbstractChessView(AbstractView, ABC):
         pass
 
 
-class BoardForm(npyscreen.ActionFormMinimal):
+class EnterExitCallbacks:
+    def on_enter(self):
+        pass
+
+    def on_exit(self):
+        pass
+
+
+class BoardForm(EnterExitCallbacks, npyscreen.ActionFormMinimal):
     board: any
+    chess_controller: ChessController
+    board_widget: BoardWidget
 
     def create(self):
-        self.add_widget(BoardWidget, name="Cool Board Widget")
+        self.chess_controller = ChessController()
+        self.chess_controller.create_game()
+        self.board_widget = self.add_widget(BoardWidget, name="Cool Board Widget ")
+
+    def on_exit(self):
+        self.chess_controller.create_game()
+        self.board_widget.reset()
+
+
+    def on_enter(self):
+        pass
 
     def on_ok(self):
         navigate_to(self, CHOOSE_GAME_STYLE)

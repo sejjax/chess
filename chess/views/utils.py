@@ -24,8 +24,29 @@ def navigate_to_button(form, name, page_name):
     return make_button(form, name, callback)
 
 
-def navigate_to(form, page_name):
+def _navigate_to(form, page_name):
     form.parentApp.switchForm(page_name)
+
+
+def navigate_to(form, form_name):
+    current_form = form
+
+    app = get_view_app(form)
+
+    if hasattr(current_form, 'on_exit'):
+        current_form.on_exit()
+
+    if form_name is not None:
+        next_form = app.getForm(form_name)
+
+        if hasattr(next_form, 'on_enter'):
+            next_form.on_enter()
+
+    _navigate_to(form, form_name)
+
+
+def get_view_app(form) -> npyscreen.NPSAppManaged:
+    return form.parentApp
 
 
 def exit_from_view(form):

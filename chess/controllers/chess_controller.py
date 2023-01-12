@@ -31,6 +31,8 @@ class ChessController(AbstractController):
         return self.party.game.board
 
     def get_board(self):
+        if self.party is None:
+            raise Exception('You can\'t get board without created game.')
         return self.party.game.board
 
     def _get_current_player(self) -> GamePlayer:
