@@ -1,7 +1,5 @@
 import npyscreen
-
-from chess.models.chess.figure import FigureType, FigureColor
-from chess.views.constants import LETTERS_FIGURE_MAP, SYMBOL_FIGURE_MAP, CURRENT_MAP
+from chess.views.constants import LETTERS_FIGURE_MAP
 
 
 def create_button(callback, *args):
@@ -53,10 +51,8 @@ def exit_from_view(form):
     navigate_to(form, None)
 
 
-def symbol_figure_map(figure_type: FigureType, figure_color: FigureColor):
-    if CURRENT_MAP == LETTERS_FIGURE_MAP:
-        return LETTERS_FIGURE_MAP[figure_type]
-    return SYMBOL_FIGURE_MAP[(figure_type, figure_color)]
+def symbol_figure_map(figure):
+    return LETTERS_FIGURE_MAP[type(figure)]
 
 
 def get_pad(self):

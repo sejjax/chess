@@ -1,13 +1,12 @@
 from ..utils.utils import invert_color
 from ..models.chess.board import Board
-from ..models.chess.figure import FigureType, FigureColor
-from .constants import SYMBOL_FIGURE_MAP, LETTERS_FIGURE_MAP, CURRENT_MAP, ALPHA, NUMBERS
+from ..models.chess.figure import FigureColor
+from .constants import LETTERS_FIGURE_MAP, CURRENT_MAP, ALPHA, NUMBERS
 
 
-def symbol_figure_map(figure_type: FigureType, figure_color: FigureColor):
+def symbol_figure_map(figure_type, figure_color: FigureColor):
     if CURRENT_MAP == LETTERS_FIGURE_MAP:
         return LETTERS_FIGURE_MAP[figure_type]
-    return SYMBOL_FIGURE_MAP[(figure_type, figure_color)]
 
 
 EMPTY_FIELD = '.'

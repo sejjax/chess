@@ -1,6 +1,6 @@
 from chess.utils.utils import invert_color
 from .game import Game, GamePlayer, WINNER_GAME_END_MAP, GameEnd
-from ..figure import FigureType, FigureColor
+from ..figure import FigureColor, King
 from ..game_state import GameState
 
 PLAYERS_COUNT = 2
@@ -14,7 +14,7 @@ class LocalGame(Game):
         king_cells = []
         for row in self.board.board:
             for cell in row:
-                if cell.content and cell.content.kind == FigureType.KING:
+                if cell.content and type(cell.content) == King:
                     king_cells.append(cell)
 
         return king_cells

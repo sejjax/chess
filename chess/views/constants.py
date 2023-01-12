@@ -1,31 +1,16 @@
-from ..models.chess.figure import FigureType, FigureColor
+from ..models.chess.figure import Knight, Bishop, Rook, Quin, King, Pawn
 from ..models.chess.board import BOARD_SIDE_SIZE
-
-SYMBOL_FIGURE_MAP = {
-    (FigureType.KING, FigureColor.WHITE): '♔',
-    (FigureType.QUIN, FigureColor.WHITE): '♕',
-    (FigureType.ROOK, FigureColor.WHITE): '♖',
-    (FigureType.BISHOP, FigureColor.WHITE): '♗',
-    (FigureType.KNIGHTS, FigureColor.WHITE): '♘',
-    (FigureType.PAWN, FigureColor.WHITE): '♙',
-    (FigureType.KING, FigureColor.BLACK): '♚',
-    (FigureType.QUIN, FigureColor.BLACK): '♛',
-    (FigureType.ROOK, FigureColor.BLACK): '♜',
-    (FigureType.BISHOP, FigureColor.BLACK): '♝',
-    (FigureType.KNIGHTS, FigureColor.BLACK): '♞',
-    (FigureType.PAWN, FigureColor.BLACK): '♟',
-}
 
 ALPHA = 'ABCDEFGH'
 NUMBERS = '12345678'
 
 LETTERS_FIGURE_MAP = {
-    FigureType.KING: 'K',
-    FigureType.QUIN: 'Q',
-    FigureType.ROOK: 'R',
-    FigureType.BISHOP: 'B',
-    FigureType.KNIGHTS: 'H',
-    FigureType.PAWN: 'P'
+    King: 'K',
+    Quin: 'Q',
+    Rook: 'R',
+    Bishop: 'B',
+    Knight: 'H',
+    Pawn: 'P'
 }
 CURRENT_MAP = LETTERS_FIGURE_MAP
 

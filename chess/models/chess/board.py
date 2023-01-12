@@ -1,7 +1,7 @@
 import curses
 
 from ...lib.vec import vec
-from .figure import Figure, FigureColor, FigureType
+from .figure import Figure, FigureColor, Pawn, Rook, Knight, Bishop, King, Quin
 from chess.models.chess.constants import *
 
 
@@ -46,24 +46,25 @@ class Board:
 
                 # Implementing default figure location
                 figure_type = None
+                cls_ = None
                 if row == 1 or row == 6:
-                    figure_type = FigureType.PAWN
+                    cls_ = Pawn
                 elif row in [LEFT_BORDER, RIGHT_BORDER]:
                     if column in [TOP_BORDER, BOTTOM_BORDER]:
-                        figure_type = FigureType.ROOK
+                        cls_ = Rook
                     elif column in [1, 6]:
-                        figure_type = FigureType.KNIGHTS
+                        cls_ = Knight
                     elif column in [2, 5]:
-                        figure_type = FigureType.BISHOP
+                        cls_ = Bishop
                     elif column == 3:
-                        figure_type = FigureType.KING
+                        cls_ = King
                     elif column == 4:
-                        figure_type = FigureType.QUIN
+                        cls_ = Quin
 
                 if is_empty_cell:
                     figure = None
                 else:
-                    figure = Figure(figure_type, figure_color)
+                    figure = cls_(figure_color)
 
                 board.set_cell_content(column, row, figure)
 

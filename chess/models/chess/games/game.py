@@ -1,8 +1,8 @@
-from typing import Type, TypeVar
+from typing import Type
 
 from ..board import Board, Cell
 from ..constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
-from ..figure import FigureColor, FigureType
+from ..figure import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King
 from ..game_state import GameState
 
 from enum import Enum
@@ -213,7 +213,7 @@ class Game(AbstractGame, ABC):
         king_cells = []
         for row in self.board.board:
             for cell in row:
-                if cell.content and cell.content.kind == FigureType.KING:
+                if cell.content and type(cell.content) == King:
                     king_cells.append(cell)
 
         return king_cells
@@ -233,7 +233,7 @@ class Game(AbstractGame, ABC):
 
         available_cells = []
 
-        if figure.kind == FigureType.PAWN:
+        if type(figure) == Pawn:
             is_on_started_pos = cell_pos.y == 1 or cell_pos.y == 6
             direction = 1 if figure.color == FigureColor.BLACK else -1
             cell_pos.y += direction
@@ -267,18 +267,18 @@ class Game(AbstractGame, ABC):
             vertical_cells = positions_to_cells(self.board, vertical_cells)
             available_cells += vertical_cells
 
-        elif figure.kind == FigureType.ROOK:
+        elif type(figure) == Rook:
             available_cells = throw_ray_cross(self.board, cell_pos)
-        elif figure.kind == FigureType.BISHOP:
+        elif type(figure) == Bishop:
             available_cells = throw_ray_cross_diagonal(self.board, cell_pos)
-        elif figure.kind == FigureType.QUIN:
+        elif type(figure) == Quin:
             available_cells = [
                 *throw_ray_cross(self.board, cell_pos),
                 *throw_ray_cross_diagonal(self.board, cell_pos)
             ]
-        elif figure.kind == FigureType.KNIGHTS:
+        elif type(figure) == Knight:
             available_cells = knights_awailable_cells(self.board, cell_pos)
-        elif figure.kind == FigureType.KING:
+        elif type(figure) == King:
             current_color = figure.color
 
             enemy_color = invert_color(current_color)

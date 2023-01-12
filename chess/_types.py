@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from chess.models.chess.figure import FigureType, FigureColor
+from chess.models.chess.figure import FigureColor
 
 
 class IChess(ABC):
 
     @abstractmethod
-    def make_step(self, pos_from, pos_to, turn_pawn_into: FigureType | None = None):
+    def make_step(self, pos_from, pos_to):
         pass
 
 

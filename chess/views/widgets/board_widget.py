@@ -103,7 +103,7 @@ class BoardWidget(npyscreen.widget.Widget):
                 symbol_figure = None
                 figure = self.board.get_cell((i, a)).content
                 if figure is not None:
-                    symbol_figure = symbol_figure_map(figure.kind, figure.color)
+                    symbol_figure = symbol_figure_map(figure)
                 if self.editing and self.curr_pos == vec(i, a):
                     if symbol_figure is not None:
                         if self.selected_cell_pos == self.curr_pos:
