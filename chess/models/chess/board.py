@@ -45,7 +45,6 @@ class Board:
                 is_empty_cell = 1 < row < 6
 
                 # Implementing default figure location
-                figure_type = None
                 cls_ = None
                 if row == 1 or row == 6:
                     cls_ = Pawn

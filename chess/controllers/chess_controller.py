@@ -40,7 +40,7 @@ class ChessController(AbstractController):
 
     def do_current_player_step(self, from_pos, to_pos):
         player = self._get_current_player()
-        player.do_step(from_pos, to_pos)
+        player.process_step(from_pos, to_pos)
 
     def get_current_player_color(self):
         return self._get_current_player().color

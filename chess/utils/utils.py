@@ -1,3 +1,5 @@
+from typing import Literal
+
 from chess.models.chess.figure import FigureColor
 from ..lib.vec import vec
 from ..models.chess.board import MIN_BORDER, MAX_BORDER, Board, Cell
@@ -24,6 +26,7 @@ def none_filter(iterable):
 def is_board_belong(pos: vec):
     def _f(val):
         return belongs_to_range(MIN_BORDER, MAX_BORDER, val, True, True)
+
     return _f(pos.x) and _f(pos.y)
 
 
@@ -37,3 +40,11 @@ def cells_to_positions(board: Board, cells: list[Cell]):
 
 def is_empty_pos(board: Board, pos):
     return board.get_cell(pos).content is None
+
+
+def get_direction_by_color(color: FigureColor) -> int:
+    return 1 if color == FigureColor.BLACK else -1
+
+
+def filterlist(fn, iterable):
+    return list(filter(fn, iterable))
