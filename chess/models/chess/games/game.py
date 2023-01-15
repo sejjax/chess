@@ -385,6 +385,18 @@ class Game(AbstractGame, ABC):
     def get_figures_by_color(self, color: FigureColor):
         return self.white_figures if color == FigureColor.WHITE else self.black_figures
 
+    def get_enemy_color(self):
+        return invert_color(self.game_state.current_step_player)
+
+    def is_king_in_dangerous(self):
+        king_cell = self.get_king_cell_by_color(self.game_state.current_step_player)
+        enemy_color = self.get_enemy_color()
+        enemy_figures_cells = self.get_figures_cells_by_color(enemy_color)
+        attacking_cells = []
+        for cell in enemy_figures_cells:
+            attacking_cells += self.get_figure_available_cells(cell)
+        return king_cell in attacking_cells
+
     @abstractmethod
     def end_game(self, winner_color: FigureColor | None):
         pass

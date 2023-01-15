@@ -60,7 +60,7 @@ class LocalGamePlayer(GamePlayer):
 
     def process_step(self, from_pos, to_pos):
         self.do_step(from_pos, to_pos)
-        # self.game_engine.change_current_player()
+        self.game_engine.change_current_player()
 
     def process_step_with_pawn_transform(self, from_pos, to_pos, transform_to):
         self.step_with_pawn_transform(from_pos, to_pos, transform_to)
