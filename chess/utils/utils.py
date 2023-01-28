@@ -2,7 +2,7 @@ from typing import Literal
 
 from chess.models.chess.figure import FigureColor
 from ..lib.vec import vec
-from ..models.chess.board import MIN_BORDER, MAX_BORDER, Board, Cell
+from ..models.chess.constants import MIN_BORDER, MAX_BORDER
 
 
 def invert_color(color):
@@ -30,20 +30,22 @@ def is_board_belong(pos: vec):
     return _f(pos.x) and _f(pos.y)
 
 
-def positions_to_cells(board: Board, positions: list[vec]):
+def positions_to_cells(board, positions: list[vec]):
     return list(map(lambda pos: board.get_cell(pos), positions))
 
 
-def cells_to_positions(board: Board, cells: list[Cell]):
+def cells_to_positions(board, cells: list):
     return list(map(lambda cell: board.get_cell_position(cell), cells))
 
 
-def is_empty_pos(board: Board, pos):
+def is_empty_pos(board, pos):
     return board.get_cell(pos).content is None
 
 
 def get_direction_by_color(color: FigureColor) -> int:
     return 1 if color == FigureColor.BLACK else -1
+
+
 
 
 def filterlist(fn, iterable):

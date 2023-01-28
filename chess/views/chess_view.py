@@ -6,7 +6,8 @@ from abc import ABC, abstractmethod
 from ..controllers.chess_controller import AbstractChessController, ChessController
 from .utils import *
 from .constants import *
-from .widgets.modern_board_widget import BoardWidget
+from .widgets.modern_board_widget import BoardWidget, GameResultsWidget
+from ..models.chess.figure import FigureColor
 
 
 class AbstractChessView(AbstractView, ABC):

@@ -3,6 +3,8 @@ import curses
 from ...lib.vec import vec
 from .figure import Figure, FigureColor, Pawn, Rook, Knight, Bishop, King, Quin
 from chess.models.chess.constants import *
+from ...views.utils import symbol_figure_map, symbol_figure_color_map
+from ...utils import str_to_list
 
 
 class Cell:
@@ -71,6 +73,36 @@ class Board:
                 group.append(figure)
 
         return board
+
+    @staticmethod
+    def build_from_string(string):
+        board = Board()
+        string = string.strip()
+        strings = str_to_list(string)
+        def check(checkable):
+            if len(checkable) != BOARD_SIDE_SIZE:
+                raise Exception('rows cound in the strings must be equal to 8. Got ' + str(len(checkable)))
+
+        # Fill not enuough space
+        if len(strings) < BOARD_SIDE_SIZE:
+            strings += [' ' * BOARD_SIDE_SIZE for _ in range(BOARD_SIDE_SIZE - len(strings))]
+        elif len(strings) > BOARD_SIDE_SIZE:
+            strings = strings[:BOARD_SIDE_SIZE]
+
+        for string_row, board_row in zip(strings, board.board):
+            if len(string_row) < 8:
+                string_row += ' ' * (BOARD_SIDE_SIZE - len(string_row))
+            for str_cell, board_cell in zip(string_row, board_row):
+                try:
+                    figure = symbol_figure_color_map(str_cell)
+                    board_cell.content = figure
+                except KeyError:
+                    if str_cell != ' ':
+                        raise Exception('Unknown char')
+
+        return board
+
+
 
     @staticmethod
     def create_init_state():

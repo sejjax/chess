@@ -1,5 +1,6 @@
 from typing import Type
 
+from .game_mode import GameMode
 from ..board import Board, Cell
 from ..constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
 from ..figure import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King, Figure
@@ -51,6 +52,10 @@ WINNER_GAME_END_MAP = {
     FigureColor.BLACK: GameEnd.BLACK_WINNER,
     GameEnd.STALEMATE: None
 }
+
+
+def get_side_by_color(color):
+    return TOP_BORDER if color == FigureColor.BLACK else BOTTOM_BORDER
 
 
 class AbstractGamePlayer(ABC):
@@ -220,7 +225,7 @@ def is_figures_between_row_cells(board: Board, pos_from: vec, pos_to: vec):
 class Game(AbstractGame, ABC):
     board: Board
 
-    def __init__(self, game_state: GameState, cls_game_player: Type['GamePlayer']):
+    def __init__(self, game_state: GameState, game_mode: GameMode, cls_game_player: Type['GamePlayer']):
         self.game_state = game_state
         self.board = game_state.board
 
@@ -231,6 +236,7 @@ class Game(AbstractGame, ABC):
         self.black_player = cls_game_player(self, FigureColor.BLACK)
 
         self.players = [self.white_player, self.black_player]
+        self.game_mode = game_mode
 
     def get_king_cells(self):
         king_cells = []
@@ -419,6 +425,30 @@ class Game(AbstractGame, ABC):
 
     def was_figure_moved(self, figure):
         return self.game_state.was_figure_moved[figure]
+
+    def pawn_available_transform_cells(self, from_pos, to_pos):
+        cell = self.board.get_cell(from_pos)
+        figure = cell.content
+        if figure is None or type(figure) != Pawn:
+            return None
+
+        color = figure.color
+        available_cell_positions = self.get_figure_available_cells(cell)
+
+        cells = []
+        for pos in available_cell_positions:
+            if to_pos.y == get_side_by_color(invert_color(color)):
+                cell = self.board.get_cell(pos)
+                cells.append(cell)
+        return cells
+
+    def will_pawn_transform(self, from_pos, to_pos):
+        res = self.pawn_available_transform_cells(from_pos, to_pos)
+
+        if res is None:
+            return False
+        return len(res) > 0
+
 
 
 class GamePlayer(ABC):

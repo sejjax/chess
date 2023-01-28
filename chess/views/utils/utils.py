@@ -1,5 +1,6 @@
 import npyscreen
 from chess.views.constants import LETTERS_FIGURE_MAP
+import bidict
 
 
 def create_button(callback, *args):
@@ -51,8 +52,7 @@ def exit_from_view(form):
     navigate_to(form, None)
 
 
-def symbol_figure_map(figure):
-    return LETTERS_FIGURE_MAP[type(figure)]
+
 
 
 def get_pad(self):

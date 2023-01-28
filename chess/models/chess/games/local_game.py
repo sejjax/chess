@@ -1,8 +1,10 @@
 from typing import Type
 
+from chess.config.config import CONFIG
 from chess.lib.vec import vec
 from chess.utils.utils import invert_color, get_direction_by_color
 from .game import Game, GamePlayer, WINNER_GAME_END_MAP, GameEnd
+from .game_mode import GameMode
 from ..constants import BOTTOM_BORDER, TOP_BORDER
 from ..figure import FigureColor, King, Figure, Pawn, Rook
 from ..game_state import GameState
@@ -11,8 +13,8 @@ PLAYERS_COUNT = 2
 
 
 class LocalGame(Game):
-    def __init__(self, game_state: GameState):
-        super().__init__(game_state, LocalGamePlayer)
+    def __init__(self, game_state: GameState, game_mode: GameMode):
+        super().__init__(game_state, game_mode, LocalGamePlayer)
 
     def do_step(self, from_pos, to_pos):
         self.move_figure(from_pos, to_pos)
@@ -52,55 +54,99 @@ class LocalGame(Game):
         return winner
 
 
+class InvalidStepMethodException(Exception):
+    def __init__(self):
+        super().__init__('You must use only process_step in this case')
+
+
 class LocalGamePlayer(GamePlayer):
     """Just Interface to interracting with Game Engine by a player"""
 
     def __init__(self, game_engine: LocalGame, color: FigureColor) -> None:
         super().__init__(game_engine, color)
 
-    def process_step(self, from_pos, to_pos):
-        self.do_step(from_pos, to_pos)
-        self.game_engine.change_current_player()
+    def process_step(self, from_pos, to_pos, pawn_transform_into: Type[Figure] = None):
+        # FIXME move to game engine
+        # The Order and Hierarcy of functions calling
+        # process_step -> | is_allowed_step | -> process_any_figure_step -> game_engine.move_figure
+        #                                               or
+        #                                   | -> process_pawn_step  | -> step_with_pawn_transform
+        #                                                           | -> process_any_figure_step
+        #                                               or
+        #                                   | -> process_king_step       -> game_engine.castle_king
 
-    def process_step_with_pawn_transform(self, from_pos, to_pos, transform_to):
-        self.step_with_pawn_transform(from_pos, to_pos, transform_to)
-        self.game_engine.change_current_player()
-
-
-    def step_with_pawn_transform(self, from_pos: vec, to_pos: vec, transform_to: Type[Figure]):
-        figure = self.get_board_cell(from_pos).content
-        enemy_border = BOTTOM_BORDER if figure.color == FigureColor.BLACK else TOP_BORDER
-        if type(figure) != Pawn:
-            return False
-        if to_pos.y != enemy_border:
-            return False
-        result = self.do_step(from_pos, to_pos)
-        if not result:
+        if not self.is_allowed_step(from_pos, to_pos):
             return False
 
-        new_cell = self.get_board_cell(from_pos)
-        new_cell.content = transform_to(figure.color)
-        return True
+        moved_figure = self.get_board_cell(from_pos).content
+
+        def process_any_figure_step(from_pos, to_pos):
+            self.game_engine.move_figure(tuple(from_pos), tuple(to_pos))
+            return True
+
+        def process_pawn_step(from_pos, to_pos, transform_to):
+            check = self.game_engine.will_pawn_transform(from_pos, to_pos)
+            if not check:
+                return process_any_figure_step(from_pos, to_pos)
+
+            figure = self.get_board_cell(from_pos).content
+            enemy_border = BOTTOM_BORDER if figure.color == FigureColor.BLACK else TOP_BORDER
+            if type(figure) != Pawn:
+                return False
+            if to_pos.y != enemy_border:
+                return False
+
+            prev_cell = self.get_board_cell(from_pos)
+            prev_cell.clear()
+            new_cell = self.get_board_cell(to_pos)
+            new_cell.content = transform_to(figure.color)
+            return True
+
+        def process_king_step(from_pos, to_pos):
+            figure = self.game_engine.get_figure(to_pos)
+
+            if type(figure) == Rook:
+                self.game_engine.castle_king(from_pos, to_pos)
+                return True
+            return process_any_figure_step(from_pos, to_pos)
+
+        moved_figure_type = type(moved_figure)
+
+        if moved_figure_type == Pawn:
+            res = process_pawn_step(from_pos, to_pos, pawn_transform_into)
+        elif moved_figure_type == King:
+            res = process_king_step(from_pos, to_pos)
+        else:
+            res = process_any_figure_step(from_pos, to_pos)
+        if not res:
+            return False
+
+        if self.game_engine.game_mode.step_by_step_play:
+            self.game_engine.change_current_player()
+
+
+
+
 
     def do_step(self, from_pos, to_pos):
+        pass
+
+    def is_allowed_step(self, from_pos, to_pos, transform_to: Type[Figure] = None):
+        # FIXME move to game engine
         from_cell = self.get_board_cell(from_pos)
         moved_figure = from_cell.content
 
-        if moved_figure is None or moved_figure.color != self.color:
+
+
+        if moved_figure is None:
             return False
+        step_by_step_check = moved_figure.color != self.color and self.game_engine.game_mode.step_by_step_play
+        if step_by_step_check:
+            return False
+
+
         available_cells = self.game_engine.get_figure_available_cells(from_cell)
         search = list(filter(lambda _cell: to_pos == _cell, available_cells))
         if len(search) == 0:
             return False
-
-        figure = None
-        is_king = type(moved_figure) == King
-
-        if is_king:
-            figure = self.game_engine.get_figure(to_pos)
-
-        if is_king and type(figure) == Rook:
-            self.game_engine.castle_king(from_pos, to_pos)
-        else:
-            self.game_engine.move_figure(tuple(from_pos), tuple(to_pos))
         return True

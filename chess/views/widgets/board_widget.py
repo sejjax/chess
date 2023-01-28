@@ -6,7 +6,7 @@ from chess.models.chess.board import Board
 from chess.models.chess.constants import *
 from chess.views.constants import BOARD_SIDE_X, BOARD_SIDE_Y, CELL_Y, CELL_X, ALPHA, CELL_SIZE, NUMBERS, EMPTY, \
     CELL_MIDDLE_Y, FILLED
-from chess.views.utils import get_pad, symbol_figure_map
+from chess.views.utils import get_pad, figure_symbol_map
 
 
 class BoardWidget(npyscreen.widget.Widget):
@@ -103,7 +103,7 @@ class BoardWidget(npyscreen.widget.Widget):
                 symbol_figure = None
                 figure = self.board.get_cell((i, a)).content
                 if figure is not None:
-                    symbol_figure = symbol_figure_map(figure)
+                    symbol_figure = figure_symbol_map(figure)
                 if self.editing and self.curr_pos == vec(i, a):
                     if symbol_figure is not None:
                         if self.selected_cell_pos == self.curr_pos:

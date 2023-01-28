@@ -1,17 +1,19 @@
 from ..models.chess.figure import Knight, Bishop, Rook, Quin, King, Pawn
-from ..models.chess.board import BOARD_SIDE_SIZE
+from ..models.chess.constants import BOARD_SIDE_SIZE
+from bidict import bidict
 
 ALPHA = 'ABCDEFGH'
 NUMBERS = '12345678'
 
-LETTERS_FIGURE_MAP = {
+LETTERS_FIGURE_MAP = bidict({
     King: 'K',
     Quin: 'Q',
     Rook: 'R',
     Bishop: 'B',
     Knight: 'H',
     Pawn: 'P'
-}
+})
+
 CURRENT_MAP = LETTERS_FIGURE_MAP
 
 MAIN_FORM = 'MAIN'
