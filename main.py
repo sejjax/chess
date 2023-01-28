@@ -1,5 +1,5 @@
 from chess.app import App
-
+import curses
 
 def main():
     app = App()
@@ -7,4 +7,7 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        curses.endwin()
