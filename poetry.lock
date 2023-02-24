@@ -1,0 +1,47 @@
+[[package]]
+name = "bidict"
+version = "0.22.1"
+description = "The bidirectional mapping library for Python."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["sphinx", "sphinx-copybutton", "furo"]
+lint = ["pre-commit"]
+test = ["hypothesis", "pytest", "pytest-benchmark", "pytest-cov", "pytest-xdist", "sortedcollections", "sortedcontainers", "sphinx"]
+
+[[package]]
+name = "blinker"
+version = "1.5"
+description = "Fast, simple object-to-object and broadcast signaling"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
+name = "npyscreen"
+version = "4.10.5"
+description = "Writing user interfaces without all that ugly mucking about in hyperspace"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "windows-curses"
+version = "2.3.1"
+description = "Support for the standard curses module on Windows"
+category = "main"
+optional = false
+python-versions = "*"
+
+[metadata]
+lock-version = "1.1"
+python-versions = "^3.10"
+content-hash = "68d2a3478e861d0d70eec4072597719702d346d03dfa606b0442d9f6760777f8"
+
+[metadata.files]
+bidict = []
+blinker = []
+npyscreen = []
+windows-curses = []
