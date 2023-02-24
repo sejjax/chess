@@ -114,9 +114,6 @@ def color(text, color):
     return styled(text, color=color)
 
 
-# def italic(text):
-#     return styled(text, italic=True)
-
 def normal(text):
     return styled(text,
                   bold=False,
@@ -179,7 +176,6 @@ ATTR_MAP = {
     PROTECT: curses.A_PROTECT,
     NORMAL: curses.A_NORMAL,
     ALTCHARSET: curses.A_ALTCHARSET,
-    # ITALIC: curses.A_ITALIC,
 }
 
 

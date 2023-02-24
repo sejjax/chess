@@ -1,29 +1,15 @@
-from typing import Type
-
-from chess.models.chess.chess_service import ChessService
-from .._types import AbstractController
 from abc import ABC
 
-from ..config.config import Config, CONFIG
-from ..models.chess.board import Board
-from ..models.chess.figure import Figure
+from .constants import DEBUG_MOD_MAP
+from ..config.config import CONFIG
 from ..models.chess.games.game import GamePlayer
-from ..models.chess.games.game_mode import GameMode
 from ..models.chess.games.game_presets import DebugGame, ClassicalGame
-from ..models.chess.games.local_game import LocalGame, LocalGamePlayer
 from ..models.chess.party import Party
-from ..models.chess.game_state import GameState
 from ..lib.singleton import singleton
 
-
-class AbstractChessController(AbstractController, ABC):
-    pass
-
-
 @singleton
-class ChessController(AbstractController):
-    def __init__(self, chess: ChessService) -> None:
-        self.chess = chess
+class ChessController:
+    def __init__(self) -> None:
         self.party: Party | None = None
         self.pawn_transform_into = None
 
@@ -33,15 +19,7 @@ class ChessController(AbstractController):
 
     def create_game(self):
         if CONFIG.debug:
-            game = DebugGame("""
-p
- PpPR
-Q
-K
-
-k  H
-H   h
-                        """)
+            game = DebugGame(DEBUG_MOD_MAP)
         else:
             game = ClassicalGame()
         self.party = game.party

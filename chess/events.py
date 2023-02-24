@@ -1,8 +1,4 @@
-from dataclasses import dataclass
-
 from blinker import signal
-
-from chess.lib.vec import vec
 
 # Event bus for views
 VIEW_EVENT_BUS_NAME = 'VIEW_EVENT_BUS'

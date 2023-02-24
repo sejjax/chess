@@ -30,7 +30,7 @@ class Board:
         if matrix is not None:
             self.board = matrix
         else:
-            # Generating Matrix 8x8
+            # Generate matrix 8x8
             self.board = self.create_init_state()
 
         self.white_figures = []
@@ -46,7 +46,7 @@ class Board:
 
                 is_empty_cell = 1 < row < 6
 
-                # Implementing default figure location
+                # Implements default figure location
                 cls_ = None
                 if row == 1 or row == 6:
                     cls_ = Pawn
@@ -83,7 +83,7 @@ class Board:
             if len(checkable) != BOARD_SIDE_SIZE:
                 raise Exception('rows cound in the strings must be equal to 8. Got ' + str(len(checkable)))
 
-        # Fill not enuough space
+        # Fill not enough space
         if len(strings) < BOARD_SIDE_SIZE:
             strings += [' ' * BOARD_SIDE_SIZE for _ in range(BOARD_SIDE_SIZE - len(strings))]
         elif len(strings) > BOARD_SIDE_SIZE:

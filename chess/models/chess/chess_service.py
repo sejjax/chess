@@ -32,11 +32,6 @@ GAME_KINDS_CLASS_MAP = {
 }
 
 
-class YouSelfGame:
-    def __init__(self):
-        game = LocalGame()
-
-
 @singleton
 class ChessService:
     party: Party
@@ -50,7 +45,7 @@ class ChessService:
 
     def do_step(self, from_pos, to_pos,
                 player):
-        # ? Doese it Right pass player object to change
+        # ? Does it right pass player object to change
         # game state via ChessService? Probably I need to create another object
         self.party.game.do_step(from_pos, to_pos)
 
@@ -75,20 +70,3 @@ class ChessService:
 
     def finish_game(self):
         self.party.game.finish()
-
-
-class ChessServer:
-    def __init__(self):
-        self.address = ('locahost', 7171)
-        self.authkey = b'somehting key'
-        self.listener = Listener(self.address, authkey=self.authkey)
-        self.connections = []
-
-    def connect(self):
-        if len(self.connections) == 2:
-            return
-        conn = self.listener.accept()
-        self.connections.append(conn)
-
-
-

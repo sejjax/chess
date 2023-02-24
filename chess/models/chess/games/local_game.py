@@ -1,8 +1,6 @@
 from typing import Type
 
-from chess.config.config import CONFIG
-from chess.lib.vec import vec
-from chess.utils.utils import invert_color, get_direction_by_color
+from chess.utils.utils import invert_color
 from .game import Game, GamePlayer, WINNER_GAME_END_MAP, GameEnd
 from .game_mode import GameMode
 from ..constants import BOTTOM_BORDER, TOP_BORDER
@@ -131,7 +129,7 @@ class LocalGamePlayer(GamePlayer):
     def do_step(self, from_pos, to_pos):
         pass
 
-    def is_allowed_step(self, from_pos, to_pos, transform_to: Type[Figure] = None):
+    def is_allowed_step(self, from_pos, to_pos):
         # FIXME move to game engine
         from_cell = self.get_board_cell(from_pos)
         moved_figure = from_cell.content

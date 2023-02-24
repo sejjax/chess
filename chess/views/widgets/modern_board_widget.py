@@ -271,7 +271,6 @@ class BoardWidget(npyscreen.widget.Widget):
     def on_open_figure_choose_popup(self, event):
         if event == OPEN_FIGURE_CHOOSE_POPUP:
             self.show_choose_figure_popup()
-            # self.choose_figure_popup.edit()
 
     def choose_figure_from_popup(self):
         self.show_choose_figure_popup()

@@ -48,6 +48,8 @@ def get_view_app(form) -> npyscreen.NPSAppManaged:
     return form.parentApp
 
 
+
+
 def exit_from_view(form):
     navigate_to(form, None)
 

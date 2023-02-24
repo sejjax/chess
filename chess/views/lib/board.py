@@ -5,7 +5,6 @@ import npyscreen
 from ..events import MoveFigureEvent
 from ..events_queue import moveFigureEventsQueue
 from ..utils import figure_symbol_map
-from ...config.config import CONFIG
 from ...controllers.chess_controller import ChessController
 from ...events import ViewEventBus, OPEN_FIGURE_CHOOSE_POPUP
 from ...models.chess.board import BOARD_SIDE_SIZE
@@ -14,7 +13,7 @@ from abc import abstractmethod, ABC
 from ...models.chess.board import Board as _Board
 from ...models.chess.figure import FigureColor, Figure
 from ...utils.utils import belongs_to_range
-from chess.models.chess.constants import MIN_BORDER, MAX_BORDER
+from chess.models.chess.constants import MIN_BORDER
 from typing import Literal, Callable, Type
 from ...lib.styled_string import addstr, bold, styled
 from ..constants import LETTERS_FIGURE_MAP
@@ -247,9 +246,6 @@ class CursorMovementControl:
         return self.go_top, self.go_right, self.go_down, self.go_left
 
 
-# class eedCursor
-
-
 class MainBoard(ClassicalBoard):
     def __init__(self, widget, cell_size):
         self.selected_cell_pos = None
@@ -267,8 +263,6 @@ class MainBoard(ClassicalBoard):
         limits_to = vec(BOARD_SIDE_SIZE, BOARD_SIDE_SIZE)
         self.cursor_movement_control = CursorMovementControl(self.cursor, limits_to)
         cursor_layer = BoardCursorLayer(cell_size, self.cursor, self.board)
-
-        # self.available_cells_selector_control = AvailableCellsSelectorControl()
 
         if self.selected_cell_pos:
             cell = self.board.get_cell(self.selected_cell_pos)
