@@ -1,14 +1,15 @@
+# Core chess rules implementation
+
 from typing import Type
+from enum import Enum
+from abc import abstractmethod, ABC
 
 from .game_mode import GameMode
+
 from ..board import Board, Cell
 from ..constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
 from ..figure import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King, Figure
 from ..game_state import GameState
-
-from enum import Enum
-
-from abc import abstractmethod, ABC
 
 from ....lib.vec import vec
 from ....utils.utils import invert_color, is_board_belong, cells_to_positions, positions_to_cells, is_empty_pos, \

@@ -1,6 +1,4 @@
 import npyscreen
-from chess.views.constants import LETTERS_FIGURE_MAP
-import bidict
 
 
 def create_button(callback, *args):

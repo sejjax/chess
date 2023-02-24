@@ -1,21 +1,25 @@
-import curses
+from typing import Literal, Callable, Type
+from abc import abstractmethod, ABC
 
+import curses
 import npyscreen
 
 from ..events import MoveFigureEvent
 from ..events_queue import moveFigureEventsQueue
-from ..utils import figure_symbol_map
-from ...controllers.chess_controller import ChessController
 from ...events import ViewEventBus, OPEN_FIGURE_CHOOSE_POPUP
-from ...models.chess.board import BOARD_SIDE_SIZE
-from ...lib.vec import vec
-from abc import abstractmethod, ABC
+
 from ...models.chess.board import Board as _Board
 from ...models.chess.figure import FigureColor, Figure
-from ...utils.utils import belongs_to_range
-from chess.models.chess.constants import MIN_BORDER
-from typing import Literal, Callable, Type
+from ...models.chess.board import BOARD_SIDE_SIZE
+from ...models.chess.constants import MIN_BORDER
+
+from ...controllers.chess_controller import ChessController
+
+from ...lib.vec import vec
 from ...lib.styled_string import addstr, bold, styled
+
+from ...utils.utils import belongs_to_range
+from ..utils import figure_symbol_map
 from ..constants import LETTERS_FIGURE_MAP
 
 Axis = Literal['x', 'y']

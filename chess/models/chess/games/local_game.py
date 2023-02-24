@@ -1,11 +1,15 @@
+# Game with oneself on the computer
+
 from typing import Type
 
-from chess.utils.utils import invert_color
 from .game import Game, GamePlayer, WINNER_GAME_END_MAP, GameEnd
 from .game_mode import GameMode
+
 from ..constants import BOTTOM_BORDER, TOP_BORDER
 from ..figure import FigureColor, King, Figure, Pawn, Rook
 from ..game_state import GameState
+
+from chess.utils.utils import invert_color
 
 PLAYERS_COUNT = 2
 

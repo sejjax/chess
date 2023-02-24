@@ -26,5 +26,5 @@ def configure():
     )
     return config
 
-
+# FIXME: Global variables is not good
 CONFIG = configure()

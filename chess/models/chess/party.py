@@ -1,5 +1,6 @@
 from typing import Type
-from .games.game import Game, GamePlayer
+
+from .games.game import Game
 from .game_state import GameState
 from .games.game_mode import GameMode
 from .player import Player

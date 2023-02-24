@@ -1,3 +1,5 @@
+# Vector implementation
+
 def is_num_type(a):
     a_type = type(a)
     return a_type == int or a_type == float 

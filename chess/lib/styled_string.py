@@ -1,3 +1,5 @@
+# Styled string is the object which contain the string and console styling attributes: weight, blinking, underline ...
+
 import curses
 
 BOLD = 'bold'

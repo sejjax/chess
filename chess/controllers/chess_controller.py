@@ -1,5 +1,3 @@
-from abc import ABC
-
 from .constants import DEBUG_MOD_MAP
 from ..config.config import CONFIG
 from ..models.chess.games.game import GamePlayer

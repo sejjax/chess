@@ -1,6 +1,8 @@
+from bidict import bidict
+
+from ..lib.vec import vec
 from ..models.chess.figure import Knight, Bishop, Rook, Quin, King, Pawn
 from ..models.chess.constants import BOARD_SIDE_SIZE
-from bidict import bidict
 
 ALPHA = 'ABCDEFGH'
 NUMBERS = '12345678'
@@ -25,7 +27,6 @@ CHOOSE_SAVED_GAME = 'CHOOSE_SAVED_GAME'
 
 CELL_SIZE = 4
 SIDE_SIZE = BOARD_SIDE_SIZE * CELL_SIZE
-ASPECT = 2
 
 FILLED = '#'
 EMPTY = '.'
@@ -34,3 +35,5 @@ CELL_Y = 3
 BOARD_SIDE_Y = BOARD_SIDE_SIZE * CELL_Y
 BOARD_SIDE_X = BOARD_SIDE_SIZE * CELL_X
 CELL_MIDDLE_Y = 1
+
+CELL_SIZE = vec(CELL_X, CELL_Y)

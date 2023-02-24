@@ -1,8 +1,10 @@
+from npyscreen import NotEnoughSpaceForWidget
+
 from ..lib.singleton import singleton
 from ..controllers.chess_controller import ChessController
 from .utils import *
 from .constants import *
-from .widgets.modern_board_widget import BoardWidget
+from .widgets.board_widget import BoardWidget
 
 
 class EnterExitCallbacks:
@@ -27,7 +29,6 @@ class BoardForm(EnterExitCallbacks, npyscreen.ActionFormMinimal):
         self.chess_controller.create_game()
         self.board_widget.reset()
 
-
     def on_enter(self):
         pass
 
@@ -48,10 +49,12 @@ class ChooseGameStyleForm(npyscreen.ActionFormMinimal):
     def on_ok(self):
         navigate_to(self, MAIN_FORM)
 
+
 class ChooseSavedGame(npyscreen.FormWithMenus):
+    back: any
     def create(self):
         super(ChooseSavedGame, self).create()
-        back = navigate_to_button(self, 'Back', CHOOSE_GAME_STYLE)
+        self.back = navigate_to_button(self, 'Back', CHOOSE_GAME_STYLE)
 
 
 class MainForm(npyscreen.FormBaseNew):
@@ -71,7 +74,7 @@ class MainForm(npyscreen.FormBaseNew):
 
 
 class _ChessView(npyscreen.NPSAppManaged):
-    def __init__(self, controller) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
     def onStart(self):
@@ -83,11 +86,14 @@ class _ChessView(npyscreen.NPSAppManaged):
 
 @singleton
 class ChessView:
-    def __init__(self, controller) -> None:
-        self.chess_view = _ChessView(controller)
+    def __init__(self) -> None:
+        self.chess_view = _ChessView()
 
     def run(self):
-        self.chess_view.run()
+        try:
+            self.chess_view.run()
+        except NotEnoughSpaceForWidget:
+            print('Not enough space. Please increase the size of the terminal.')
 
     def exit(self):
         exit_from_view(self.chess_view.getForm(MAIN_FORM))
