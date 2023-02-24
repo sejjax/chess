@@ -449,7 +449,6 @@ class Game(AbstractGame, ABC):
         if res is None:
             return False
         return len(res) > 0
-        issubclass()
 
 
 
