@@ -1,8 +1,6 @@
-from blinker import signal
-
 # Event bus for views
 VIEW_EVENT_BUS_NAME = 'VIEW_EVENT_BUS'
-ViewEventBus = signal(VIEW_EVENT_BUS_NAME)
+
 
 FIGURE_WAS_CHOSE = 'FIGURE_WAS_CHOSE'
 OPEN_FIGURE_CHOOSE_POPUP = 'OPEN_FIGURE_CHOOSE_POPUP'

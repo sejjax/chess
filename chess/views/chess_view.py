@@ -52,6 +52,7 @@ class ChooseGameStyleForm(npyscreen.ActionFormMinimal):
 
 class ChooseSavedGame(npyscreen.FormWithMenus):
     back: any
+
     def create(self):
         super(ChooseSavedGame, self).create()
         self.back = navigate_to_button(self, 'Back', CHOOSE_GAME_STYLE)
