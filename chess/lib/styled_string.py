@@ -181,8 +181,10 @@ ATTR_MAP = {
 }
 
 
-def addstr(scr, text: StyledString | str, relx=0, rely=0):
-    """Add styled string to screen"""
+def addstr(scr, text, relx=0, rely=0):
+    """Add styled string to screen
+        text: str
+    """
     text = styled(text)
     cursor_pos = 0
     for chunk in text.chunks:
