@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 
+from chess.lib.event_bus import Event
 from chess.lib.vec import vec
-
-
-class Event:
-    pass
 
 
 @dataclass

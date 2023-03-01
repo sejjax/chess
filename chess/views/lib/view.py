@@ -52,14 +52,14 @@ class ScreenFormBaseNew(ScreenBaseView, npyscreen.FormBaseNew):
 class ScreenActionForm(ScreenFormBaseNew, npyscreen.ActionForm):
     def __init__(self, view_id, parent, controller, event_bus, *args, **kwargs):
         ScreenBaseView.__init__(self, view_id, parent, controller, event_bus)
-        npyscreen.ActionForm.__init__(*args, **kwargs)
+        npyscreen.ActionForm.__init__(self, *args, **kwargs)
         self.parent = parent
 
 
 class ScreenActionFormMinimal(ScreenFormBaseNew, npyscreen.ActionFormMinimal):
     def __init__(self, view_id, parent, controller, event_bus, *args, **kwargs):
         ScreenBaseView.__init__(self, view_id, parent, controller, event_bus)
-        npyscreen.ActionFormMinimal.__init__(*args, **kwargs)
+        npyscreen.ActionFormMinimal.__init__(self, *args, **kwargs)
         self.parent = parent
 
 

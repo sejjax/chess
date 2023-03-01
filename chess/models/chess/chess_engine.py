@@ -7,6 +7,8 @@ from chess.models.chess.board import Board, Cell
 from chess.models.chess.chess_game import ChessGame
 from chess.models.chess.constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
 from chess.models.chess.figures import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King, Figure
+from chess.models.chess.game_mode import GameMode
+from chess.models.chess.game_state import GameState
 from chess.models.chess.games import Game
 from chess.models.chess.utils import get_side_by_color
 from chess.utils.utils import invert_color, is_board_belong, cells_to_positions, positions_to_cells, is_empty_pos, \
@@ -130,6 +132,9 @@ def is_figures_between_row_cells(board: Board, pos_from: vec, pos_to: vec):
 
 
 class AbstractChessEngine(ChessGame, ABC):
+    game_state: GameState
+    game_mode: GameMode
+
     @abstractmethod
     def get_figures(self, color: FigureColor):
         pass
@@ -350,6 +355,8 @@ class ChessEngine(AbstractChessEngine):
         return True
 
     def _process_pawn_step(self, from_pos, to_pos, transform_to):
+        # FIXME: add opportunity to choose figure
+        transform_to = Quin
         check = self.will_pawn_transform(from_pos, to_pos)
         if not check:
             return self._process_any_figure_step(from_pos, to_pos)
@@ -415,14 +422,13 @@ class ChessEngine(AbstractChessEngine):
         pass
 
     def _is_allowed_step(self, from_pos, to_pos):
-        # FIXME move to game engine
         from_cell = self.board.get_cell(from_pos)
         moved_figure = from_cell.content
 
         if moved_figure is None:
             return False
-        step_by_step_check = moved_figure.color == self.game_state.current_step_player and self.game_mode.step_by_step_play
-        if step_by_step_check:
+        step_by_step_check = moved_figure.color == self.game_state.current_step_player
+        if (self.game_mode.step_by_step_play and not step_by_step_check):
             return False
 
         available_cells = self._get_figure_available_cells(from_cell)

@@ -9,7 +9,6 @@ from ..events import MoveFigureEvent
 from ..events_queue import moveFigureEventsQueue
 from ..utils import figure_symbol_map
 from ...controllers.game_session_controller import GameSessionController
-from ...events import ViewEventBus, OPEN_FIGURE_CHOOSE_POPUP
 from ...lib.styled_string import addstr, bold, styled
 from ...lib.vec import vec
 from ...models.chess.board import BOARD_SIDE_SIZE
@@ -255,7 +254,7 @@ class MainBoard(ClassicalBoard):
         self.board = self.game_controller.get_board()
         self.highlight_cells = []
         if self.selected_cell_pos is not None:
-            self.highlight_cells = self.game_controller.get_figure_available_cells(self.selected_cell_pos)
+            self.highlight_cells = self.game_controller.get_available_cells(self.selected_cell_pos)
 
         super(MainBoard, self).__init__(cell_size)
 
@@ -303,7 +302,7 @@ class MainBoard(ClassicalBoard):
                 cursor_cell_content.color == current_player_color or not step_by_step_play)
         if check:
             self.selected_cell_pos = self.cursor.pos.copy()
-            available_cells = self.game_controller.get_figure_available_cells(self.selected_cell_pos)
+            available_cells = self.game_controller.get_available_cells(self.selected_cell_pos)
             self.highlight_cells = available_cells
 
     def get_available_cells_pos(self):
@@ -331,7 +330,7 @@ class MainBoard(ClassicalBoard):
 
         will_pawn_trans = self.game_controller.will_pawn_transform(from_pos, to_pos)
         if will_pawn_trans:
-            ViewEventBus.send(OPEN_FIGURE_CHOOSE_POPUP)
+            # ViewEventBus.send(OPEN_FIGURE_CHOOSE_POPUP)
             event = MoveFigureEvent(from_pos, to_pos)
             moveFigureEventsQueue.put_nowait(event)
             return
@@ -342,7 +341,7 @@ class MainBoard(ClassicalBoard):
         self.do_step(event.from_pos, event.to_pos, figure)
 
     def do_step(self, from_pos, to_pos, transform_pawn_into=None):
-        self.game_controller.do_current_player_step(from_pos, to_pos, transform_pawn_into)
+        self.game_controller.do_peace(from_pos, to_pos, transform_pawn_into)
 
     def choose_figure(self, choosed_figure):
         pass

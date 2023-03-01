@@ -18,14 +18,14 @@ def make_button(form: ScreenFormBaseNew, name: str, callback):
     return form.add(button, name=name)
 
 
-def navigate_to_button(form: ScreenFormBaseNew, name: str, view_cls: Type[ScreenFormBaseNew]):
+def navigate_to_button(form: ScreenFormBaseNew, name: str, view_cls: Type[ScreenFormBaseNew] | str):
     def callback():
-        _navigate_to(form, view_cls)
+        navigate_to(form, view_cls)
 
     return make_button(form, name, callback)
 
 
-def _navigate_to(form: ScreenFormBaseNew, view_cls: Type[ScreenFormBaseNew]):
+def navigate_to(form: ScreenFormBaseNew, view_cls: Type[ScreenFormBaseNew] | str):
     form.parent.navigator.navigate_to(view_cls)
 
 
