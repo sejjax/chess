@@ -1,4 +1,4 @@
-from chess.models.chess.figure import FigureColor
+from chess.models.chess.figures import FigureColor
 from ..lib.vec import vec
 from ..models.chess.constants import MIN_BORDER, MAX_BORDER
 

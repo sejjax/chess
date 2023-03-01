@@ -1,29 +1,19 @@
 from npyscreen import NotEnoughSpaceForWidget
 
-from ..lib.singleton import singleton
-from ..controllers.chess_controller import ChessController
-from .utils import *
 from .constants import *
-from .widgets.board_widget import BoardWidget
+from .utils import *
+from ..controllers.chess_controller import ChessController
+from ..lib.event_bus import EventBus
 
 
-class EnterExitCallbacks:
-    def on_enter(self):
-        pass
-
-    def on_exit(self):
-        pass
-
-
-class BoardForm(EnterExitCallbacks, npyscreen.ActionFormMinimal):
+class BoardForm(ScreenActionFormMinimal):
     board: any
-    chess_controller: ChessController
     board_widget: BoardWidget
+    chess_controller: ChessController
 
     def create(self):
-        self.chess_controller = ChessController()
-        self.chess_controller.create_game()
-        self.board_widget = self.add_widget(BoardWidget, name="Cool Board Widget ")
+        game_controller = self.chess_controller.create_game()
+        self.board_widget = self.add_widget(BoardWidget, name="Cool Board Widget ", game_controller=game_controller)
 
     def on_exit(self):
         self.chess_controller.create_game()
@@ -58,7 +48,7 @@ class ChooseSavedGame(npyscreen.FormWithMenus):
         self.back = navigate_to_button(self, 'Back', CHOOSE_GAME_STYLE)
 
 
-class MainForm(npyscreen.FormBaseNew):
+class MainForm(ScreenFormBaseNew):
     start_game: any
     exit_button: any
 
@@ -66,6 +56,7 @@ class MainForm(npyscreen.FormBaseNew):
         super(MainForm, self).create()
         self.start_game = make_button(self, 'Start Game', self.on_start_game)
         self.exit_button = make_button(self, 'Exit', self.on_cancel)
+        raise Exception(self.controller)
 
     def on_start_game(self):
         navigate_to(self, CHOOSE_GAME_STYLE)
@@ -75,8 +66,13 @@ class MainForm(npyscreen.FormBaseNew):
 
 
 class _ChessView(npyscreen.NPSAppManaged):
-    def __init__(self) -> None:
+    chess_controller: ChessController
+    event_bus: EventBus
+
+    def __init__(self, chess_controller, event_bus) -> None:
         super().__init__()
+        self.chess_controller = chess_controller
+        self.event_bus = event_bus
 
     def onStart(self):
         self.addForm(MAIN_FORM, MainForm, name="The Chess", color="IMPORTANT")
@@ -84,11 +80,25 @@ class _ChessView(npyscreen.NPSAppManaged):
         self.addForm(LOCAL_GAME_FORM, BoardForm, name="Local Chess Game", color="WARNING")
         self.addForm(CHOOSE_SAVED_GAME, ChooseSavedGame, name="Saved Games", color="WARNING")
 
+    def addForm(self, f_id, FormClass, *args, **keywords):
+        super().addForm(
+            f_id,
+            FormClass,
+            *args,
+            **keywords,
+            controller=self.chess_controller,
+            event_bus=self.event_bus
+        )
 
-@singleton
+
 class ChessView:
-    def __init__(self) -> None:
-        self.chess_view = _ChessView()
+    controller: ChessController
+    event_bus: EventBus
+
+    def __init__(self, controller, event_bus) -> None:
+        self.controller = controller
+        self.event_bus = event_bus
+        self.chess_view = _ChessView(self.controller, self.event_bus)
 
     def run(self):
         try:

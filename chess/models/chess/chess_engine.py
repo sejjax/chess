@@ -1,18 +1,15 @@
 # Core chess rules implementation
-
-from typing import Type
-from enum import Enum
 from abc import abstractmethod, ABC
+from typing import Type
 
-from .game_mode import GameMode
-
-from ..board import Board, Cell
-from ..constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
-from ..figure import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King, Figure
-from ..game_state import GameState
-
-from ....lib.vec import vec
-from ....utils.utils import invert_color, is_board_belong, cells_to_positions, positions_to_cells, is_empty_pos, \
+from chess.lib.vec import vec
+from chess.models.chess.board import Board, Cell
+from chess.models.chess.chess_game import ChessGame
+from chess.models.chess.constants import LEFT_BORDER, TOP_BORDER, RIGHT_BORDER, BOTTOM_BORDER
+from chess.models.chess.figures import FigureColor, Pawn, Rook, Bishop, Quin, Knight, King, Figure
+from chess.models.chess.games import Game
+from chess.models.chess.utils import get_side_by_color
+from chess.utils.utils import invert_color, is_board_belong, cells_to_positions, positions_to_cells, is_empty_pos, \
     get_direction_by_color, filterlist
 
 TOP_DIRECTION = vec(0, -1)
@@ -34,97 +31,6 @@ VERTICAL = [TOP_DIRECTION, BOTTOM_DIRECTION]
 
 MIN_BORDERS = [LEFT_BORDER, TOP_BORDER]
 MAX_BORDERS = [RIGHT_BORDER, BOTTOM_BORDER]
-
-
-class GameEnd(Enum):
-    STALEMATE = 0
-    WHITE_WINNER = 1
-    BLACK_WINNER = 2
-
-
-GAME_END_WINNER_MAP = {
-    GameEnd.WHITE_WINNER: FigureColor.WHITE,
-    GameEnd.BLACK_WINNER: FigureColor.BLACK,
-    GameEnd.STALEMATE: None
-}
-
-WINNER_GAME_END_MAP = {
-    FigureColor.WHITE: GameEnd.WHITE_WINNER,
-    FigureColor.BLACK: GameEnd.BLACK_WINNER,
-    GameEnd.STALEMATE: None
-}
-
-
-def get_side_by_color(color):
-    return TOP_BORDER if color == FigureColor.BLACK else BOTTOM_BORDER
-
-
-class AbstractGamePlayer(ABC):
-    pass
-
-    """Just Interface to interacting with Game Engine by a player"""
-
-    def __init__(self, game_engine: 'AbstractGame', color: FigureColor) -> None:
-        self.color = color
-        self.game_engine = game_engine
-
-    def get_enemy_figures(self):
-        pass
-
-    def get_my_figures(self):
-        pass
-
-    def get_available_cells(self, pos_from):
-        pass
-
-    def make_step(self, from_pos, to_pos):
-        pass
-
-    def on_win(self):
-        pass
-
-    def set_on_win_callback(self, callback):
-        pass
-
-    def on_lose(self):
-        pass
-
-    def set_on_lose_callback(self, callback):
-        pass
-
-    def on_stalemate(self):
-        pass
-
-    def set_on_stalemate_callback(self, callback):
-        pass
-
-    def get_current_player(self) -> 'AbstractGamePlayer':
-        pass
-
-
-class AbstractGame(ABC):
-    @abstractmethod
-    def get_current_player(self) -> AbstractGamePlayer:
-        pass
-
-    @abstractmethod
-    def do_step(self, from_pos, to_pos):
-        pass
-
-
-def game_name_player_color_map(player_color, game_end_state: GameEnd):
-    return FigureColor.WHITE
-
-
-def get_winner(game_end_state):
-    return GAME_END_WINNER_MAP[game_end_state]
-
-
-def get_loser(game_end_state):
-    winner_color = get_winner(game_end_state)
-    if winner_color is None:
-        return None
-    return invert_color(winner_color)
 
 
 def throw_ray(board: Board, pos_from: vec, direction: vec):
@@ -178,7 +84,7 @@ AVAILABLE_RELATIVE_CELLS = [
 ]
 
 
-def knights_awailable_cells(board: Board, pos_from: vec) -> list[Cell]:
+def knights_available_cells(board: Board, pos_from: vec) -> list[Cell]:
     """Generate list of step cells for knight figures"""
     cells = []
     for rel_pos in AVAILABLE_RELATIVE_CELLS:
@@ -223,23 +129,24 @@ def is_figures_between_row_cells(board: Board, pos_from: vec, pos_to: vec):
     return True
 
 
-class Game(AbstractGame, ABC):
+class AbstractChessEngine(ChessGame, ABC):
+    @abstractmethod
+    def get_figures(self, color: FigureColor):
+        pass
+
+
+class ChessEngine(AbstractChessEngine):
     board: Board
 
-    def __init__(self, game_state: GameState, game_mode: GameMode, cls_game_player: Type['GamePlayer']):
-        self.game_state = game_state
-        self.board = game_state.board
+    def __init__(self, game: Game):
+        self.game_state = game.game_state
+        self.board = game.game_state.board
+        self.game_mode = game.game_mode
 
         white_figures, black_figures = self.board.get_figures()
         self.white_figures, self.black_figures = white_figures, black_figures
 
-        self.white_player = cls_game_player(self, FigureColor.WHITE)
-        self.black_player = cls_game_player(self, FigureColor.BLACK)
-
-        self.players = [self.white_player, self.black_player]
-        self.game_mode = game_mode
-
-    def get_king_cells(self):
+    def _get_king_cells(self):
         king_cells = []
         for row in self.board.board:
             for cell in row:
@@ -248,14 +155,14 @@ class Game(AbstractGame, ABC):
 
         return king_cells
 
-    def get_figure(self, pos):
+    def _get_figure(self, pos):
         return self.board.get_cell(pos).content
 
-    def get_king_cell_by_color(self, color):
-        cells = self.get_figures_cells_by_color_and_kind(color, King)
+    def _get_king_cell_by_color(self, color):
+        cells = self._get_figures_cells_by_color_and_kind(color, King)
         return cells[0]
 
-    def castle_king(self, king_pos, rook_pos):
+    def _castle_king(self, king_pos, rook_pos):
         new_king_pos = king_pos.copy()
         new_rook_pos = rook_pos.copy()
         if king_pos.x > rook_pos.x:
@@ -264,13 +171,13 @@ class Game(AbstractGame, ABC):
         else:
             new_king_pos.x = 6
             new_rook_pos.x = 5
-        self.move_figure(king_pos, new_king_pos)
-        self.move_figure(rook_pos, new_rook_pos)
+        self._move_figure(king_pos, new_king_pos)
+        self._move_figure(rook_pos, new_rook_pos)
 
-    def is_able_to_castling(self, king_or_rook):
-        return not self.was_figure_moved(king_or_rook)
+    def _is_able_to_castling(self, king_or_rook):
+        return not self._was_figure_moved(king_or_rook)
 
-    def get_figures_cells_by_color(self, color):
+    def _get_figures_cells_by_color(self, color):
         cells = []
         for row in self.board.board:
             for i in row:
@@ -279,19 +186,19 @@ class Game(AbstractGame, ABC):
                     cells.append(i)
         return cells
 
-    def get_figures_cells_by_color_and_kind(self, color, kind):
-        cells = self.get_figures_cells_by_color(color)
+    def _get_figures_cells_by_color_and_kind(self, color, kind):
+        cells = self._get_figures_cells_by_color(color)
         return filterlist(lambda i: type(i.content) == kind, cells)
 
-    def get_available_to_castling_rooks_cells(self):
-        color = self.get_current_player().color
-        king_cell = self.get_king_cell_by_color(color)
-        if not self.is_able_to_castling(king_cell.content):
+    def _get_available_to_castling_rooks_cells(self):
+        color = self.game_state.current_step_player
+        king_cell = self._get_king_cell_by_color(color)
+        if not self._is_able_to_castling(king_cell.content):
             return []
         king_pos = self.board.get_cell_position(king_cell)
 
-        rooks_cells = self.get_figures_cells_by_color_and_kind(color, Rook)
-        rooks_cells = filterlist(lambda i: self.is_able_to_castling(i.content), rooks_cells)
+        rooks_cells = self._get_figures_cells_by_color_and_kind(color, Rook)
+        rooks_cells = filterlist(lambda i: self._is_able_to_castling(i.content), rooks_cells)
         rooks_cells = filterlist(lambda i: is_figures_between_row_cells(
             self.board,
             king_pos,
@@ -299,7 +206,7 @@ class Game(AbstractGame, ABC):
         ), rooks_cells)
         return rooks_cells
 
-    def get_figure_available_cells(self, cell: Cell):
+    def _get_figure_available_cells(self, cell: Cell):
         figure = cell.content
         cell_pos = self.board.get_cell_position(cell)
 
@@ -317,7 +224,7 @@ class Game(AbstractGame, ABC):
         figure_type = type(figure)
 
         if figure_type == Pawn:
-            is_on_started_pos = not self.was_figure_moved(figure)
+            is_on_started_pos = not self._was_figure_moved(figure)
             direction = get_direction_by_color(figure.color)
             cell_pos.y += direction
 
@@ -360,12 +267,12 @@ class Game(AbstractGame, ABC):
                 *throw_ray_cross_diagonal(self.board, cell_pos)
             ]
         elif figure_type == Knight:
-            available_cells = knights_awailable_cells(self.board, cell_pos)
+            available_cells = knights_available_cells(self.board, cell_pos)
         elif figure_type == King:
             current_color = figure.color
 
             enemy_color = invert_color(current_color)
-            enemy_king_cell = filterlist(lambda i: i.content.color == enemy_color, self.get_king_cells())
+            enemy_king_cell = filterlist(lambda i: i.content.color == enemy_color, self._get_king_cells())
             enemy_king_available_cells = set()
 
             if len(enemy_king_cell) > 0:
@@ -381,60 +288,48 @@ class Game(AbstractGame, ABC):
         available_cells = list(set(available_cells) - set(allie_cells))
 
         if figure_type == King:
-            available_cells += self.get_available_to_castling_rooks_cells()
+            available_cells += self._get_available_to_castling_rooks_cells()
 
         available_cells = cells_to_positions(self.board, available_cells)
         return available_cells
 
-    def get_current_player(self):
-        return self.get_player_by_color(self.game_state.current_step_player)
-
-    def get_figures_by_color(self, color: FigureColor):
+    def _get_figures_by_color(self, color: FigureColor):
         return self.white_figures if color == FigureColor.WHITE else self.black_figures
 
-    def get_enemy_color(self):
+    def _get_enemy_color(self):
         return invert_color(self.game_state.current_step_player)
 
-    def is_king_in_dangerous(self):
-        king_cell = self.get_king_cell_by_color(self.game_state.current_step_player)
-        enemy_color = self.get_enemy_color()
-        enemy_figures_cells = self.get_figures_cells_by_color(enemy_color)
+    def _is_king_in_dangerous(self):
+        king_cell = self._get_king_cell_by_color(self.game_state.current_step_player)
+        enemy_color = self._get_enemy_color()
+        enemy_figures_cells = self._get_figures_cells_by_color(enemy_color)
         attacking_cells = []
         for cell in enemy_figures_cells:
-            attacking_cells += self.get_figure_available_cells(cell)
+            attacking_cells += self._get_figure_available_cells(cell)
         return king_cell in attacking_cells
 
-    @abstractmethod
-    def end_game(self, winner_color: FigureColor | None):
-        pass
-
-    def get_player_by_color(self, color: FigureColor):
-        for player in self.players:
-            if player.color == color:
-                return player
-
-    def turn_figure(self, pos, turn_to_cls: Type[Figure]):
+    def _turn_figure(self, pos, turn_to_cls: Type[Figure]):
         cell = self.board.get_cell(tuple(pos))
         cell.content = turn_to_cls(cell.content.color)
         return cell.content
 
-    def move_figure(self, pos_from, pos_to):
+    def _move_figure(self, pos_from, pos_to):
         figure = self.board.get_cell(pos_from).content
         if figure is not None:
             self.game_state.was_figure_moved[figure] = True
         self.board.move_figure(pos_from, pos_to)
 
-    def was_figure_moved(self, figure):
+    def _was_figure_moved(self, figure):
         return self.game_state.was_figure_moved[figure]
 
-    def pawn_available_transform_cells(self, from_pos, to_pos):
+    def _pawn_available_transform_cells(self, from_pos, to_pos):
         cell = self.board.get_cell(from_pos)
         figure = cell.content
         if figure is None or type(figure) != Pawn:
             return None
 
         color = figure.color
-        available_cell_positions = self.get_figure_available_cells(cell)
+        available_cell_positions = self._get_figure_available_cells(cell)
 
         cells = []
         for pos in available_cell_positions:
@@ -444,66 +339,94 @@ class Game(AbstractGame, ABC):
         return cells
 
     def will_pawn_transform(self, from_pos, to_pos):
-        res = self.pawn_available_transform_cells(from_pos, to_pos)
+        res = self._pawn_available_transform_cells(from_pos, to_pos)
 
         if res is None:
             return False
         return len(res) > 0
 
+    def _process_any_figure_step(self, from_pos, to_pos):
+        self._move_figure(tuple(from_pos), tuple(to_pos))
+        return True
 
+    def _process_pawn_step(self, from_pos, to_pos, transform_to):
+        check = self.will_pawn_transform(from_pos, to_pos)
+        if not check:
+            return self._process_any_figure_step(from_pos, to_pos)
 
-class GamePlayer(ABC):
-    """Just Interface to interacting with Game Engine by a player"""
+        figure = self.board.get_cell(from_pos).content
+        enemy_border = BOTTOM_BORDER if figure.color == FigureColor.BLACK else TOP_BORDER
+        if type(figure) != Pawn:
+            return False
+        if to_pos.y != enemy_border:
+            return False
 
-    def __init__(self, game_engine: Game, color: FigureColor) -> None:
-        self.game_engine = game_engine
-        self.color: FigureColor = color
+        prev_cell = self.board.get_cell(from_pos)
+        prev_cell.clear()
+        new_cell = self.board.get_cell(to_pos)
+        new_cell.content = transform_to(figure.color)
+        return True
 
-        self.on_win_callback = None
-        self.on_lose_callback = None
+    def _process_king_step(self, from_pos, to_pos):
+        figure = self._get_figure(to_pos)
 
-        self.on_win_callback = None
-        self.on_lose_callback = None
-        self.on_stalemate_callback = None
+        if type(figure) == Rook:
+            self._castle_king(from_pos, to_pos)
+            return True
+        return self._process_any_figure_step(from_pos, to_pos)
 
-    def get_enemy_figures(self):
-        enemy_color = invert_color(self.color)
-        return self.game_engine.get_figures_by_color(enemy_color)
+    def _change_current_step_player(self):
+        self.game_state.current_step_player = invert_color(self.game_state.current_step_player)
 
-    def get_my_figures(self):
-        return self.game_engine.get_figures_by_color(self.color)
+    def get_available_cells(self, pos: vec) -> list[vec]:
+        cell = self.board.get_cell(tuple(pos))
+        return self._get_figure_available_cells(cell)
 
-    def get_available_cells(self, pos_from):
-        cell = self.get_board_cell(pos_from)
-        return self.game_engine.get_figure_available_cells(cell)
+    def do_peace(self, from_pos: vec, to_pos: vec, figure: Type[Figure] | None = None):
+        # FIXME move to game engine
+        # The Order and Hierarcy of functions calling
+        # process_step -> | is_allowed_step | -> _process_any_figure_step -> game_engine.move_figure
+        #                                               or
+        #                                   | -> _process_pawn_step  | -> step_with_pawn_transform
+        #                                                           | -> _process_any_figure_step
+        #                                               or
+        #                                   | -> _process_king_step       -> game_engine.castle_king
 
-    @abstractmethod
-    def do_step(self, from_pos, to_pos):
+        if not self._is_allowed_step(from_pos, to_pos):
+            return False
+
+        moved_figure = self.board.get_cell(tuple(from_pos)).content
+
+        moved_figure_type = type(moved_figure)
+
+        if moved_figure_type == Pawn:
+            res = self._process_pawn_step(from_pos, to_pos, figure)
+        elif moved_figure_type == King:
+            res = self._process_king_step(from_pos, to_pos)
+        else:
+            res = self._process_any_figure_step(from_pos, to_pos)
+        if not res:
+            return False
+
+        if self.game_mode.step_by_step_play:
+            self._change_current_step_player()
+
+    def get_figures(self, color: FigureColor):
         pass
 
-    def on_win(self):
-        if self.on_win_callback:
-            self.on_win_callback()
+    def _is_allowed_step(self, from_pos, to_pos):
+        # FIXME move to game engine
+        from_cell = self.board.get_cell(from_pos)
+        moved_figure = from_cell.content
 
-    def set_on_win_callback(self, callback):
-        self.on_win_callback = callback
+        if moved_figure is None:
+            return False
+        step_by_step_check = moved_figure.color == self.game_state.current_step_player and self.game_mode.step_by_step_play
+        if step_by_step_check:
+            return False
 
-    def on_lose(self):
-        if self.on_lose_callback:
-            self.on_lose_callback()
-
-    def set_on_lose_callback(self, callback):
-        self.on_lose_callback = callback
-
-    def on_stalemate(self):
-        if self.on_stalemate_callback:
-            self.on_stalemate_callback()
-
-    def set_on_stalemate_callback(self, callback):
-        self.on_stalemate_callback = callback
-
-    def get_current_player(self):
-        return self.game_engine.get_current_player()
-
-    def get_board_cell(self, pos):
-        return self.game_engine.board.get_cell(pos)
+        available_cells = self._get_figure_available_cells(from_cell)
+        search = list(filter(lambda _cell: to_pos == _cell, available_cells))
+        if len(search) == 0:
+            return False
+        return True

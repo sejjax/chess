@@ -2,18 +2,17 @@ from typing import Literal
 
 import npyscreen
 
-from ..constants import CELL_SIZE
 from chess.models.chess.board import BOARD_SIDE_SIZE
+from ..constants import CELL_SIZE
 from ..lib.board import MainBoard, BoardRenderer, Axis, CursorMovementControl, Cursor
 from ..utils import get_pad, figure_symbol_map
 from ...controllers.chess_controller import ChessController
-from ...events import ViewEventBus, FIGURE_WAS_CHOSE, OPEN_FIGURE_CHOOSE_POPUP
-from ...lib.vec import vec
+from ...controllers.game_session_controller import GameSessionController
+from ...events import FIGURE_WAS_CHOSE, OPEN_FIGURE_CHOOSE_POPUP
 from ...lib.styled_string import addstr, bold
-from ...models.chess.figure import FigureColor, Quin, Bishop, Knight, Rook
+from ...lib.vec import vec
+from ...models.chess.figures import FigureColor, Quin, Bishop, Knight, Rook
 from ...utils import str_to_list
-
-
 
 
 def calc_shift(num):
@@ -205,7 +204,7 @@ class FigureChooser(npyscreen.widget.Widget, HideShow):
         m_setup_movement_control_select_handlers(self, handlers)
 
     def _action_callback(self):
-        ViewEventBus.send(FIGURE_WAS_CHOSE)
+        pass
 
     def action_handler(self):
         self._action_callback()
@@ -217,11 +216,11 @@ class FigureChooser(npyscreen.widget.Widget, HideShow):
 class BoardWidget(npyscreen.widget.Widget):
     board: MainBoard
     board_renderer: BoardRenderer
-    chess_controller: ChessController
+    game_controller: GameSessionController
     size_store: vec
     choose_figure_popup: FigureChooser
 
-    def __init__(self, screen, relx=0, rely=0, name=None, value=None, width=False, height=False,
+    def __init__(self, screen, game_controller, relx=0, rely=0, name=None, value=None, width=False, height=False,
                  max_height=False, max_width=False, editable=True, hidden=False, color='DEFAULT', use_max_space=False,
                  check_value_change=True, check_cursor_move=True, value_changed_callback=None, **keywords):
         self.size_store = vec(0, 0)
@@ -230,9 +229,7 @@ class BoardWidget(npyscreen.widget.Widget):
                          use_max_space, check_value_change, check_cursor_move, value_changed_callback, **keywords)
         self.pos = vec(relx, rely)
 
-        self.reset()
-        ViewEventBus.connect(self.on_figure_choose)
-        ViewEventBus.connect(self.on_open_figure_choose_popup)
+        self.game_controller = game_controller
 
     def on_figure_choose(self, event):
         if event == FIGURE_WAS_CHOSE:
@@ -257,7 +254,6 @@ class BoardWidget(npyscreen.widget.Widget):
         self.choose_figure_popup.show()
         self.update()
 
-
     def hide_choose_figure_popup(self):
         self.choose_figure_popup.hide()
         self.update()
@@ -277,8 +273,7 @@ class BoardWidget(npyscreen.widget.Widget):
         m_setup_movement_control_select_handlers(self, [*handlers, select_cell_handler])
 
     def reset(self):
-        self.chess_controller = ChessController()
-        self.board = MainBoard(self, CELL_SIZE)
+        self.board = MainBoard(self, CELL_SIZE, self.game_controller)
         self.board_renderer = BoardRenderer(self.pos, self.board)
         self._set_up_handlers()
         self.reset_choose_figure_popup()

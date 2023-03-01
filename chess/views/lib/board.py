@@ -1,26 +1,22 @@
-from typing import Literal, Callable, Type
-from abc import abstractmethod, ABC
-
 import curses
+from abc import abstractmethod, ABC
+from typing import Literal, Callable, Type
+
 import npyscreen
 
+from ..constants import LETTERS_FIGURE_MAP
 from ..events import MoveFigureEvent
 from ..events_queue import moveFigureEventsQueue
-from ...events import ViewEventBus, OPEN_FIGURE_CHOOSE_POPUP
-
-from ...models.chess.board import Board as _Board
-from ...models.chess.figure import FigureColor, Figure
-from ...models.chess.board import BOARD_SIDE_SIZE
-from ...models.chess.constants import MIN_BORDER
-
-from ...controllers.chess_controller import ChessController
-
-from ...lib.vec import vec
-from ...lib.styled_string import addstr, bold, styled
-
-from ...utils.utils import belongs_to_range
 from ..utils import figure_symbol_map
-from ..constants import LETTERS_FIGURE_MAP
+from ...controllers.game_session_controller import GameSessionController
+from ...events import ViewEventBus, OPEN_FIGURE_CHOOSE_POPUP
+from ...lib.styled_string import addstr, bold, styled
+from ...lib.vec import vec
+from ...models.chess.board import BOARD_SIDE_SIZE
+from ...models.chess.board import Board as _Board
+from ...models.chess.constants import MIN_BORDER
+from ...models.chess.figures import FigureColor, Figure
+from ...utils.utils import belongs_to_range
 
 Axis = Literal['x', 'y']
 Step = Literal[-1, 0, 1]
@@ -251,15 +247,15 @@ class CursorMovementControl:
 
 
 class MainBoard(ClassicalBoard):
-    def __init__(self, widget, cell_size):
+    def __init__(self, widget, cell_size, game_controller: GameSessionController):
         self.selected_cell_pos = None
         self.widget = widget
-        self.chess_controller = ChessController(None)  # FIXME This is very bed. You must use event bus
+        self.game_controller = game_controller
 
-        self.board = self.chess_controller.get_board()
+        self.board = self.game_controller.get_board()
         self.highlight_cells = []
         if self.selected_cell_pos is not None:
-            self.highlight_cells = self.chess_controller.get_figure_available_cells(self.selected_cell_pos)
+            self.highlight_cells = self.game_controller.get_figure_available_cells(self.selected_cell_pos)
 
         super(MainBoard, self).__init__(cell_size)
 
@@ -288,7 +284,7 @@ class MainBoard(ClassicalBoard):
         self.prev_to_pos = None
 
     def reset(self):
-        self.chess_controller.reset_game()
+        self.game_controller.reset_game()
         self.cursor.pos = vec(0, 0)
         self.highlight_cells = []
         self.selected_cell_pos = None
@@ -301,13 +297,13 @@ class MainBoard(ClassicalBoard):
 
     def select_cell(self):
         cursor_cell_content = self.board.get_cell(tuple(self.cursor.pos)).content
-        current_player_color = self.chess_controller.get_current_player_color()
-        step_by_step_play = self.chess_controller.get_game_mode().step_by_step_play
+        current_player_color = self.game_controller.get_current_player_color()
+        step_by_step_play = self.game_controller.get_game_mode().step_by_step_play
         check = cursor_cell_content is not None and (
-                    cursor_cell_content.color == current_player_color or not step_by_step_play)
+                cursor_cell_content.color == current_player_color or not step_by_step_play)
         if check:
             self.selected_cell_pos = self.cursor.pos.copy()
-            available_cells = self.chess_controller.get_figure_available_cells(self.selected_cell_pos)
+            available_cells = self.game_controller.get_figure_available_cells(self.selected_cell_pos)
             self.highlight_cells = available_cells
 
     def get_available_cells_pos(self):
@@ -333,7 +329,7 @@ class MainBoard(ClassicalBoard):
 
         from_pos, to_pos = self.from_to_pos()
 
-        will_pawn_trans = self.chess_controller.will_pawn_transform(from_pos, to_pos)
+        will_pawn_trans = self.game_controller.will_pawn_transform(from_pos, to_pos)
         if will_pawn_trans:
             ViewEventBus.send(OPEN_FIGURE_CHOOSE_POPUP)
             event = MoveFigureEvent(from_pos, to_pos)
@@ -346,7 +342,7 @@ class MainBoard(ClassicalBoard):
         self.do_step(event.from_pos, event.to_pos, figure)
 
     def do_step(self, from_pos, to_pos, transform_pawn_into=None):
-        self.chess_controller.do_current_player_step(from_pos, to_pos, transform_pawn_into)
+        self.game_controller.do_current_player_step(from_pos, to_pos, transform_pawn_into)
 
     def choose_figure(self, choosed_figure):
         pass

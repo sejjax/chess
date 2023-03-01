@@ -1,8 +1,8 @@
 from bidict import bidict
 
 from ..lib.vec import vec
-from ..models.chess.figure import Knight, Bishop, Rook, Quin, King, Pawn
 from ..models.chess.constants import BOARD_SIDE_SIZE
+from ..models.chess.figures import Knight, Bishop, Rook, Quin, King, Pawn
 
 ALPHA = 'ABCDEFGH'
 NUMBERS = '12345678'

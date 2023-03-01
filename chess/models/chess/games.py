@@ -1,19 +1,24 @@
+from abc import ABC
+
 from chess.models.chess.board import Board
+from chess.models.chess.game_mode import GameMode
 from chess.models.chess.game_state import GameState
-from chess.models.chess.games.game_mode import GameMode
-from chess.models.chess.games.local_game import LocalGame
-from chess.models.chess.party import Party
 
 
-class ClassicalGame:
+class Game(ABC):
+    board: Board
+    game_mode: GameMode
+    game_state: GameState
+
+
+class ClassicGame(Game):
     def __init__(self):
         self.board = Board.build()
         self.game_mode = GameMode(True)
         self.game_state = GameState(board=self.board)
-        self.party = Party.new(LocalGame, self.game_state, self.game_mode)
 
 
-class DebugGame:
+class DebugGame(Game):
     def __init__(self, string_map: str = None):
 
         if string_map is not None:
@@ -23,4 +28,3 @@ class DebugGame:
 
         self.game_mode = GameMode(False)
         self.game_state = GameState(board=self.board)
-        self.party = Party.new(LocalGame, self.game_state, self.game_mode)

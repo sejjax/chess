@@ -1,10 +1,10 @@
 # Chess board model
 
-from ...lib.vec import vec
-from .figure import Figure, FigureColor, Pawn, Rook, Knight, Bishop, King, Quin
 from chess.models.chess.constants import *
-from ...views.utils import symbol_figure_color_map
+from .figures import Figure, FigureColor, Pawn, Rook, Knight, Bishop, King, Quin
+from ...lib.vec import vec
 from ...utils import str_to_list
+from ...views.utils import symbol_figure_color_map
 
 
 class Cell:

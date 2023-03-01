@@ -1,7 +1,7 @@
 # Object represents chess game state
 
 from .board import Board
-from .figure import FigureColor
+from .figures import FigureColor
 
 
 class GameState:

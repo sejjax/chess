@@ -1,6 +1,6 @@
 from typing import Type
 
-from chess.models.chess.figure import FigureColor, Figure
+from chess.models.chess.figures import FigureColor, Figure
 from chess.views.constants import LETTERS_FIGURE_MAP
 
 

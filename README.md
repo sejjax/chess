@@ -4,10 +4,10 @@ Console chess in python.
 ## Installation
 On Windows:
 ```shell
-curl -sSL https://install.python-poetry.org | python3 -
 git clone https://github.com/sejjax/chess
 cd chess
-poetry install --no-root
+pip install -r ./requirements.txt
+pip install windows-curses
 python main.py
 ```
 Note:
@@ -16,10 +16,9 @@ you need to additionally install package `windows-curses`.
 
 On MacOS / Linux:
 ```shell
-curl -sSL https://install.python-poetry.org | python3 -
 git clone https://github.com/sejjax/chess
 cd chess
-poetry install --no-root
+pip3 install -r requiremens.txt
 python3 main.py
 ```
 

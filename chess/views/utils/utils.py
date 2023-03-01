@@ -1,4 +1,8 @@
+from typing import Type
+
 import npyscreen
+
+from chess.views.lib.view import ScreenFormBaseNew
 
 
 def create_button(callback, *args):
@@ -9,50 +13,28 @@ def create_button(callback, *args):
     return Button
 
 
-def make_button(form, name, callback):
+def make_button(form: ScreenFormBaseNew, name: str, callback):
     button = create_button(callback)
     return form.add(button, name=name)
 
 
-def navigate_to_button(form, name, page_name):
+def navigate_to_button(form: ScreenFormBaseNew, name: str, view_cls: Type[ScreenFormBaseNew]):
     def callback():
-        navigate_to(form, page_name)
+        _navigate_to(form, view_cls)
 
     return make_button(form, name, callback)
 
 
-def _navigate_to(form, page_name):
-    form.parentApp.switchForm(page_name)
-
-
-def navigate_to(form, form_name):
-    current_form = form
-
-    app = get_view_app(form)
-
-    if hasattr(current_form, 'on_exit'):
-        current_form.on_exit()
-
-    if form_name is not None:
-        next_form = app.getForm(form_name)
-
-        if hasattr(next_form, 'on_enter'):
-            next_form.on_enter()
-
-    _navigate_to(form, form_name)
+def _navigate_to(form: ScreenFormBaseNew, view_cls: Type[ScreenFormBaseNew]):
+    form.parent.navigator.navigate_to(view_cls)
 
 
 def get_view_app(form) -> npyscreen.NPSAppManaged:
     return form.parentApp
 
 
-
-
-def exit_from_view(form):
-    navigate_to(form, None)
-
-
-
+def exit_from_view(form: ScreenFormBaseNew):
+    form.parent.navigator.view_exit()
 
 
 def get_pad(self):

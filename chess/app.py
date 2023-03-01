@@ -1,13 +1,15 @@
 from .controllers.chess_controller import ChessController
-from .views.chess_view import ChessView
-import chess.config.config
+from .lib.event_bus import EventBus
+from .views.chess.view import ChessViewApp
+
+VIEW_EVENT_BUS = 'VIEW_EVENT_BUS'
 
 
 class App:
     def __init__(self) -> None:
-        # TODO: Move logic from controller to service and model
-        chess_controller = ChessController()
-        self.chess_view = ChessView()
+        self.event_bus = EventBus(VIEW_EVENT_BUS)
+        self.controller = ChessController()
+        self.chess_view = ChessViewApp(self.controller, self.event_bus)
 
     def run(self):
         self.chess_view.run()
