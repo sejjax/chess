@@ -251,7 +251,7 @@ class MainBoard(ClassicalBoard):
         self.widget = widget
         self.game_controller = game_controller
 
-        self.board = self.game_controller.get_board()
+        self.board = self.game_controller.game_state.board
         self.highlight_cells = []
         if self.selected_cell_pos is not None:
             self.highlight_cells = self.game_controller.get_available_cells(self.selected_cell_pos)
@@ -296,8 +296,8 @@ class MainBoard(ClassicalBoard):
 
     def select_cell(self):
         cursor_cell_content = self.board.get_cell(tuple(self.cursor.pos)).content
-        current_player_color = self.game_controller.get_current_player_color()
-        step_by_step_play = self.game_controller.get_game_mode().step_by_step_play
+        current_player_color = self.game_controller.game_state.current_step_player
+        step_by_step_play = self.game_controller.game_mode.step_by_step_play
         check = cursor_cell_content is not None and (
                 cursor_cell_content.color == current_player_color or not step_by_step_play)
         if check:

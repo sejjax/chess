@@ -272,7 +272,8 @@ class BoardWidget(npyscreen.widget.Widget):
 
         m_setup_movement_control_select_handlers(self, [*handlers, select_cell_handler])
 
-    def reset(self):
+    def reset(self, game_controller: GameSessionController):
+        self.game_controller = game_controller
         self.board = MainBoard(self, CELL_SIZE, self.game_controller)
         self.board_renderer = BoardRenderer(self.pos, self.board)
         self._set_up_handlers()

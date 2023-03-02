@@ -8,7 +8,7 @@ from chess.views.widgets.board_widget import BoardWidget
 class LocalChessGameView(ScreenActionFormMinimal):
     controller: ChessController
     game_controller: GameSessionController | None
-    board_widget: any
+    board_widget: BoardWidget
     start: any
 
     def __init__(self, *args, **kwargs):
@@ -22,13 +22,13 @@ class LocalChessGameView(ScreenActionFormMinimal):
     def on_enter(self):
         self.game_controller = self.controller.create_game()
 
-        self.board_widget.reset()
+        self.board_widget.reset(self.game_controller)
 
     def on_ok(self):
         navigate_to(self, 'MainMenuView')
         self.game_controller = self.controller.create_game()
-        self.board_widget.reset()
+        self.board_widget.reset(self.game_controller)
 
     def on_exit(self):
         self.game_controller = self.controller.create_game()
-        self.board_widget.reset()
+        self.board_widget.reset(self.game_controller)
